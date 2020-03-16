@@ -52,9 +52,9 @@ export class CommentEntity {
   @ManyToOne(type => UserEntity)
   replyTo: UserEntity;
 
-  @CreateDateColumn({ type: 'timestamp' })
+  @CreateDateColumn({ type: 'datetime' })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp' })
+  @UpdateDateColumn({ type: 'datetime' })
   updatedAt: Date;
 }
