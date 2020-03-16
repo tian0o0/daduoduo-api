@@ -11,9 +11,8 @@ interface respBody {
 @Injectable()
 export class UploadService {
   async upload(file): Promise<UploadResult> {
-    return;
     try {
-      const res = await this.qiniuPut(file.originalname, file.originalname);
+      const res = await this.qiniuPut(file.originalname, file.path);
       const url = qiniuOptions.url + res.key;
       return {
         code: 0,
