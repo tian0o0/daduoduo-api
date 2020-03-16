@@ -2,7 +2,8 @@ import {
   Module,
   NestModule,
   MiddlewareConsumer,
-  RequestMethod
+  RequestMethod,
+  forwardRef
 } from '@nestjs/common';
 import { AnswerService } from './answer.service';
 import { AnswerController } from './answer.controller';
@@ -17,10 +18,11 @@ import { CheckAnswerOwnerMiddleware } from './check-answer-owner.middleware';
 @Module({
   imports: [
     TypeOrmModule.forFeature([AnswerEntity, QuestionEntity]),
-    UserModule
+    forwardRef(() => UserModule)
   ],
   providers: [AnswerService],
-  controllers: [AnswerController]
+  controllers: [AnswerController],
+  exports: [AnswerService]
 })
 export class AnswerModule implements NestModule {
   public configure(consumer: MiddlewareConsumer) {
@@ -28,28 +30,28 @@ export class AnswerModule implements NestModule {
       .apply(AuthMiddleware)
       .forRoutes(
         {
-          path: 'questions/:questionId(\\d+)/answers',
+          path: '*/answers', // questions/:questionId(\\d+)
           method: RequestMethod.POST
         },
         {
-          path: 'questions/:questionId(\\d+)/answers/:id(\\d+)',
+          path: '*/answers/:id(\\d+)',
           method: RequestMethod.PATCH
         },
         {
-          path: 'questions/:questionId(\\d+)/answers/:id(\\d+)',
+          path: '*/answers/:id(\\d+)',
           method: RequestMethod.DELETE
         }
       )
       .apply(CheckAnswerExistMiddleware)
-      .forRoutes('questions/:questionId(\\d+)/answers/:id(\\d+)')
+      .forRoutes('*/answers/:id(\\d+)')
       .apply(CheckAnswerOwnerMiddleware)
       .forRoutes(
         {
-          path: 'questions/:questionId(\\d+)/answers/:id(\\d+)',
+          path: '*/answers/:id(\\d+)',
           method: RequestMethod.PATCH
         },
         {
-          path: 'questions/:questionId(\\d+)/answers/:id(\\d+)',
+          path: '*/answers/:id(\\d+)',
           method: RequestMethod.DELETE
         }
       );

@@ -10,12 +10,19 @@ import {
   ParseIntPipe,
   Delete
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+  ApiUseTags
+} from '@nestjs/swagger';
 import { AnswerEntity } from './answer.entity';
 import { CreateAnswerDto } from './dto';
 import { AnswerService } from './answer.service';
 import { AnswerR0 } from './answer.interface';
 
+@ApiBearerAuth()
+@ApiUseTags('answers')
 @Controller('questions/:questionId/answers')
 export class AnswerController {
   constructor(private readonly answerService: AnswerService) {}

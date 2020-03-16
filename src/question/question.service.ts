@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { QuestionEntity } from './question.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getRepository, Like } from 'typeorm';
+import { Repository, Like } from 'typeorm';
 import { QuestionR0 } from './question.interface';
 import { CreateQuestionDto, UpdateQuestionDto } from './dto';
 import { REQUEST } from '@nestjs/core';
@@ -64,7 +64,6 @@ export class QuestionService {
     if (Reflect.has(body, 'topics')) {
       body.topics = await this.topicEntity.findByIds(body.topics);
     }
-    console.log(toUpdate);
     let updated = Object.assign(toUpdate, body);
     return await this.questionRepository.save(updated);
   }

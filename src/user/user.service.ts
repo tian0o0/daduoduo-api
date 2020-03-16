@@ -6,19 +6,24 @@ import {
   ConflictException
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, getRepository, DeleteResult } from 'typeorm';
+import {
+  Repository,
+  getRepository,
+  DeleteResult,
+  getConnection
+} from 'typeorm';
 import { UserEntity } from './user.entity';
 import { CreateUserDto, LoginUserDto, UpdateUserDto } from './dto';
 const jwt = require('jsonwebtoken');
 import { SECRET } from '../config';
 import { UserData } from './user.interface';
 import { validate } from 'class-validator';
-import { HttpException } from '@nestjs/common/exceptions/http.exception';
-import { HttpStatus } from '@nestjs/common';
 import * as argon2 from 'argon2';
 import { TopicEntity } from '../topic/topic.entity';
 import { REQUEST } from '@nestjs/core';
 import { Request } from 'express';
+import { QuestionEntity } from '../question/question.entity';
+import { AnswerEntity } from '../answer/answer.entity';
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {
@@ -27,6 +32,10 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(TopicEntity)
     private readonly topicRepository: Repository<TopicEntity>,
+    @InjectRepository(QuestionEntity)
+    private readonly questionRepository: Repository<QuestionEntity>,
+    @InjectRepository(AnswerEntity)
+    private readonly answerRepository: Repository<AnswerEntity>,
     @Inject(REQUEST)
     private readonly req: Request
   ) {}
@@ -102,20 +111,6 @@ export class UserService {
 
   async delete(email: string): Promise<DeleteResult> {
     return await this.userRepository.delete({ email: email });
-    // 删除成功返回200：
-    // {
-    // "raw": {
-    // "fieldCount": 0,
-    // "affectedRows": 0,
-    // "insertId": 0,
-    // "serverStatus": 34,
-    // "warningCount": 0,
-    // "message": "",
-    // "protocol41": true,
-    // "changedRows": 0
-    // },
-    // "affected": 1
-    // }
   }
 
   async findById(id: number): Promise<UserEntity> {
@@ -182,6 +177,133 @@ export class UserService {
     const index = me.followingTopics.map(topic => topic.id).indexOf(id);
     if (index > -1) {
       me.followingTopics.splice(index, 1);
+      await this.userRepository.save(me);
+    }
+  }
+
+  async listQuestions(userId: number): Promise<QuestionEntity[]> {
+    return await this.questionRepository.find({ questionerId: userId });
+  }
+
+  async listLikedAnswers(userId: number): Promise<AnswerEntity[]> {
+    return await (
+      await this.userRepository.findOne(userId, {
+        relations: ['likedAnswer']
+      })
+    ).likedAnswer;
+  }
+
+  async listDislikedAnswers(userId: number): Promise<AnswerEntity[]> {
+    return await (
+      await this.userRepository.findOne(userId, {
+        relations: ['dislikedAnswer']
+      })
+    ).dislikedAnswer;
+  }
+
+  async likeAnswer(answerId: number): Promise<void> {
+    const selfId = this.req.user.id;
+    const me = await this.userRepository.findOne(selfId, {
+      relations: ['likedAnswer']
+    });
+    if (!me.likedAnswer.map(answer => answer.id).includes(answerId)) {
+      await getConnection()
+        .createQueryBuilder()
+        .update(AnswerEntity)
+        .set({ voteCount: () => 'voteCount + 1' })
+        .where('id = :id', { id: answerId })
+        .execute();
+
+      const newLikedAnswer = await this.answerRepository.findOne(answerId);
+      me.likedAnswer.push(newLikedAnswer);
+      await this.userRepository.save(me);
+    }
+  }
+
+  async cancelLikeAnswer(answerId: number): Promise<void> {
+    const selfId = this.req.user.id;
+    const me = await this.userRepository.findOne(selfId, {
+      relations: ['likedAnswer']
+    });
+    const index = me.likedAnswer.map(answer => answer.id).indexOf(answerId);
+    if (index > -1) {
+      await getConnection()
+        .createQueryBuilder()
+        .update(AnswerEntity)
+        .set({ voteCount: () => 'voteCount - 1' })
+        .where('id = :id', { id: answerId })
+        .execute();
+      me.likedAnswer.splice(index, 1);
+      await this.userRepository.save(me);
+    }
+  }
+
+  async dislikeAnswer(answerId: number): Promise<void> {
+    const selfId = this.req.user.id;
+    const me = await this.userRepository.findOne(selfId, {
+      relations: ['dislikedAnswer']
+    });
+    if (!me.dislikedAnswer.map(answer => answer.id).includes(answerId)) {
+      await getConnection()
+        .createQueryBuilder()
+        .update(AnswerEntity)
+        .set({ voteCount: () => 'voteCount - 1' })
+        .where('id = :id', { id: answerId })
+        .execute();
+
+      const newDislikedAnswer = await this.answerRepository.findOne(answerId);
+      me.dislikedAnswer.push(newDislikedAnswer);
+      await this.userRepository.save(me);
+    }
+  }
+
+  async cancelDislikeAnswer(answerId: number): Promise<void> {
+    const selfId = this.req.user.id;
+    const me = await this.userRepository.findOne(selfId, {
+      relations: ['dislikedAnswer']
+    });
+    const index = me.dislikedAnswer.map(answer => answer.id).indexOf(answerId);
+    if (index > -1) {
+      await getConnection()
+        .createQueryBuilder()
+        .update(AnswerEntity)
+        .set({ voteCount: () => 'voteCount + 1' })
+        .where('id = :id', { id: answerId })
+        .execute();
+      me.dislikedAnswer.splice(index, 1);
+      await this.userRepository.save(me);
+    }
+  }
+
+  async listCollectedAnswers(userId: number): Promise<AnswerEntity[]> {
+    const me = await this.userRepository.findOne(userId, {
+      relations: ['collectedAnswers']
+    });
+    return me.collectedAnswers;
+  }
+
+  async collectAnswer(answerId: number): Promise<void> {
+    const selfId = this.req.user.id;
+    const me = await this.userRepository.findOne(selfId, {
+      relations: ['collectedAnswers']
+    });
+    if (!me.collectedAnswers.map(answer => answer.id).includes(answerId)) {
+      const answer = await this.answerRepository.findOne(answerId);
+      me.collectedAnswers.push(answer);
+      await this.userRepository.save(me);
+    }
+  }
+
+  async cancelCollectAnswer(answerId: number): Promise<void> {
+    const selfId = this.req.user.id;
+    const me = await this.userRepository.findOne(selfId, {
+      relations: ['collectedAnswers']
+    });
+    const index = me.collectedAnswers
+      .map(answer => answer.id)
+      .indexOf(answerId);
+    if (index > -1) {
+      me.collectedAnswers.splice(index, 1);
       await this.userRepository.save(me);
     }
   }

@@ -15,6 +15,10 @@ import { CheckOwnMiddleware } from './check-owner.middleware';
 import { CheckUserExistMiddleware } from './check-user-exist.middleware';
 import { CheckTopicExistMiddleware } from '../topic/check-topic-exist.middleware';
 import { TopicModule } from '../topic/topic.module';
+import { QuestionEntity } from '../question/question.entity';
+import { AnswerEntity } from '../answer/answer.entity';
+import { CheckAnswerExistMiddleware } from '../answer/check-answer-exist.middleware';
+import { AnswerModule } from '../answer/answer.module';
 
 /**
  * userModule and TopicModule is the relationship of Circular dependency
@@ -22,8 +26,14 @@ import { TopicModule } from '../topic/topic.module';
  */
 @Module({
   imports: [
-    TypeOrmModule.forFeature([UserEntity, TopicEntity]),
-    forwardRef(() => TopicModule)
+    TypeOrmModule.forFeature([
+      UserEntity,
+      TopicEntity,
+      QuestionEntity,
+      AnswerEntity
+    ]),
+    forwardRef(() => TopicModule),
+    forwardRef(() => AnswerModule)
   ],
   providers: [UserService],
   controllers: [UserController],
@@ -48,6 +58,8 @@ export class UserModule implements NestModule {
       .forRoutes({
         path: 'users/*follow/topic/:id(\\d+)',
         method: RequestMethod.ALL
-      });
+      })
+      .apply(CheckAnswerExistMiddleware)
+      .forRoutes('users/*answer/:id(\\d+)');
   }
 }

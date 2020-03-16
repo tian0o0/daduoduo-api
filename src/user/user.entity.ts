@@ -12,8 +12,8 @@ import {
 } from 'typeorm';
 import { IsEmail } from 'class-validator';
 import * as argon2 from 'argon2';
-// import { ArticleEntity } from '../article/article.entity';
 import { TopicEntity } from '../topic/topic.entity';
+import { AnswerEntity } from '../answer/answer.entity';
 
 enum Gender {
   Male = 'male',
@@ -99,6 +99,18 @@ export class UserEntity {
   @ManyToMany(type => TopicEntity)
   @JoinTable()
   followingTopics: TopicEntity[];
+
+  @ManyToMany(type => AnswerEntity)
+  @JoinTable()
+  likedAnswer: AnswerEntity[];
+
+  @ManyToMany(type => AnswerEntity)
+  @JoinTable()
+  dislikedAnswer: AnswerEntity[];
+
+  @ManyToMany(type => AnswerEntity)
+  @JoinTable()
+  collectedAnswers: AnswerEntity[];
 
   // @OneToOne(type => TopicEntity)
   // @JoinColumn()

@@ -24,6 +24,8 @@ import { User } from './user.decorator';
 import { ValidationPipe } from '../shared/pipes/validation.pipe';
 
 import { ApiUseTags, ApiBearerAuth } from '@nestjs/swagger';
+import { QuestionEntity } from '../question/question.entity';
+import { AnswerEntity } from '../answer/answer.entity';
 
 @ApiBearerAuth()
 @ApiUseTags('users')
@@ -125,5 +127,89 @@ export class UserController {
     @Param('id', new ParseIntPipe()) topicId: number
   ): Promise<void> {
     return await this.userService.unfollowTopic(topicId);
+  }
+
+  // 用户提问列表
+  @Get(':id/questions')
+  async listQuestions(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<QuestionEntity[]> {
+    return await this.userService.listQuestions(id);
+  }
+
+  // 赞过的答案
+  @Get(':id/likedAnswers')
+  async listLikedAnswers(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<AnswerEntity[]> {
+    return await this.userService.listLikedAnswers(id);
+  }
+
+  // 踩过的答案
+  @Get(':id/dislikedAnswers')
+  async listDislikedAnswers(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<AnswerEntity[]> {
+    return await this.userService.listDislikedAnswers(id);
+  }
+
+  // 赞
+  @Put('likeAnswer/:id')
+  @HttpCode(204)
+  async likeAnswer(@Param('id', new ParseIntPipe()) id: number): Promise<void> {
+    await this.userService.likeAnswer(id);
+    await this.userService.cancelDislikeAnswer(id);
+  }
+
+  // 取消赞
+  @Delete('likeAnswer/:id')
+  @HttpCode(204)
+  async cancelLikeAnswer(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<void> {
+    await this.userService.cancelLikeAnswer(id);
+  }
+
+  // 踩
+  @Put('dislikeAnswer/:id')
+  @HttpCode(204)
+  async dislikeAnswer(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<void> {
+    await this.userService.dislikeAnswer(id);
+    await this.userService.cancelLikeAnswer(id);
+  }
+
+  // 取消踩
+  @Delete('dislikeAnswer/:id')
+  @HttpCode(204)
+  async cancelDislikeAnswer(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<void> {
+    await this.userService.cancelDislikeAnswer(id);
+  }
+
+  // 获取收藏的答案列表
+  @Get(':id/collectedAnswers')
+  async listCollectedAnswers(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<AnswerEntity[]> {
+    return await this.userService.listCollectedAnswers(id);
+  }
+
+  // 收藏答案
+  @Put('collectAnswer/:id')
+  async collectAnswer(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<void> {
+    await this.userService.collectAnswer(id);
+  }
+
+  // 取消收藏答案
+  @Delete('collectAnswer/:id')
+  async cancelCollectAnswer(
+    @Param('id', new ParseIntPipe()) id: number
+  ): Promise<void> {
+    await this.userService.cancelCollectAnswer(id);
   }
 }

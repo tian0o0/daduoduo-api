@@ -29,6 +29,9 @@ export class QuestionEntity {
   })
   questioner: UserEntity;
 
+  @Column()
+  questionerId: number;
+
   @ManyToMany(type => TopicEntity, {
     eager: true
   })

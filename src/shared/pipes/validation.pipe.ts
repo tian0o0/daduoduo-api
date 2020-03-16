@@ -12,7 +12,6 @@ import { HttpException } from '@nestjs/common/exceptions/http.exception';
 @Injectable()
 export class ValidationPipe implements PipeTransform<any> {
   async transform(value: any, metadata: ArgumentMetadata) {
-    // console.log(value);
     if (!value) {
       throw new BadRequestException('缺少请求参数');
     }

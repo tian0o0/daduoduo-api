@@ -6,6 +6,8 @@ import { Connection } from 'typeorm';
 import { TopicModule } from './topic/topic.module';
 import { QuestionModule } from './question/question.module';
 import { AnswerModule } from './answer/answer.module';
+import { CommentModule } from './comment/comment.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -13,7 +15,9 @@ import { AnswerModule } from './answer/answer.module';
     UserModule,
     TopicModule,
     QuestionModule,
-    AnswerModule
+    AnswerModule,
+    CommentModule,
+    UploadModule
   ],
   controllers: [AppController],
   providers: []

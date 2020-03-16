@@ -26,17 +26,6 @@ export class AnswerService {
     orderBy: OrderBy,
     questionId: number
   ): Promise<AnswerR0> {
-    // const [data, count] = await this.answerRepository.findAndCount({
-    //   take: perPage,
-    //   skip: page * perPage,
-    //   where: {
-    //     content: Like(`%${q}%`),
-    //     question: questionId
-    //   },
-    //   order: {
-    //     voteCount: 'DESC'
-    //   }
-    // });
     const [data, count] = await getRepository(AnswerEntity)
       .createQueryBuilder('answer')
       .take(perPage)
