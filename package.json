@@ -7,7 +7,7 @@
     "start": "node index.js",
     "start:watch": "JWT_SECRET=api_jwt_secret nodemon",
     "prestart:prod": "tsc",
-    "start:prod": "JWT_SECRET=api_jwt_secret NODE_ENV=production node dist/main.js",
+    "start:prod": "JWT_SECRET=api_jwt_secret NODE_ENV=production pm2 start pm2.json",
     "test": "jest --config=jest.json",
     "test:watch": "jest --watch --config=jest.json",
     "test:coverage": "jest --config=jest.json --coverage --coverageDirectory=coverage"
