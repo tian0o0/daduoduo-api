@@ -45,6 +45,7 @@ export class UserService {
       .createQueryBuilder('user')
       .take(perPage)
       .skip(page * perPage)
+      .cache(true)
       .getMany();
   }
 

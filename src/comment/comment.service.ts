@@ -42,7 +42,8 @@ export class CommentService {
         answer: answerId,
         rootComment: rootCommentId
       },
-      relations: ['subComments']
+      relations: ['subComments'],
+      cache: true
     });
     return { data, count };
   }

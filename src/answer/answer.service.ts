@@ -32,6 +32,8 @@ export class AnswerService {
       .skip(page * perPage)
       .where('answer.question = :questionId', { questionId })
       .andWhere('answer.content like :content', { content: `%${q}%` })
+      // .addSelect('sleep(3)')
+      .cache(true)
       .orderBy(`answer.${orderBy}`)
       .getManyAndCount();
     return { data, count };

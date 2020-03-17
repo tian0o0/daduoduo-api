@@ -22,7 +22,8 @@ export class TopicService {
       skip: page * perPage,
       where: {
         name: Like(`%${q}%`)
-      }
+      },
+      cache: true
     });
     return { data, count };
   }

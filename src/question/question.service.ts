@@ -29,7 +29,8 @@ export class QuestionService {
     const [data, count] = await this.questionRepository.findAndCount({
       take: perPage,
       skip: page * perPage,
-      where: [{ title: Like(`%${q}%`) }, { description: Like(`%${q}%`) }]
+      where: [{ title: Like(`%${q}%`) }, { description: Like(`%${q}%`) }],
+      cache: true
     });
     return { data, count };
   }

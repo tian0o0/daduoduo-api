@@ -8,7 +8,8 @@ import {
   OneToMany,
   OneToOne,
   JoinColumn,
-  RelationCount
+  RelationCount,
+  Index
 } from 'typeorm';
 import { IsEmail } from 'class-validator';
 import * as argon2 from 'argon2';
@@ -29,6 +30,7 @@ enum Diploma {
 }
 
 @Entity('user')
+@Index(['name', 'email'], { unique: true })
 export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
