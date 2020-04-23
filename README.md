@@ -2,7 +2,7 @@
 
 > 项目基于`NestJS + TypeORM + MYSQL`
 
-[接口文档地址](http://118.24.202.177:3000/docs)
+[Swagger 接口文档地址](http://118.31.127.122/docs)
 
 ## 功能
 
