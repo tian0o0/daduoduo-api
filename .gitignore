@@ -23,3 +23,6 @@ coverage
 
 
 dist/*
+
+# redis memory cache
+dump.rdb

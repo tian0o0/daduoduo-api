@@ -8,11 +8,11 @@ import {
   Body,
   Patch,
   Delete,
-  HttpCode
+  HttpCode,
 } from '@nestjs/common';
 import { QuestionEntity } from './question.entity';
 import { QuestionService } from './question.service';
-import { ApiBearerAuth, ApiUseTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiUseTags, ApiOperation } from '@nestjs/swagger';
 import { QuestionR0 } from './question.interface';
 import { CreateQuestionDto, UpdateQuestionDto } from './dto';
 
@@ -21,7 +21,8 @@ import { CreateQuestionDto, UpdateQuestionDto } from './dto';
 @Controller('questions')
 export class QuestionController {
   constructor(private readonly questionService: QuestionService) {}
-  // 获取问题列表
+
+  @ApiOperation({ title: '获取问题列表' })
   @Get()
   async findAll(@Query() query): Promise<QuestionR0> {
     const { perPage = 10, page = 1, q = '' } = query;
@@ -30,7 +31,7 @@ export class QuestionController {
     return await this.questionService.findAll(_perPage, _page, q);
   }
 
-  //获取指定问题
+  @ApiOperation({ title: '获取指定问题' })
   @Get(':id')
   async findById(
     @Param('id', new ParseIntPipe()) id: number
@@ -38,13 +39,13 @@ export class QuestionController {
     return await this.questionService.findById(id);
   }
 
-  // 新建问题
+  @ApiOperation({ title: '新建问题' })
   @Post()
   async create(@Body() body: CreateQuestionDto): Promise<QuestionEntity> {
     return await this.questionService.create(body);
   }
 
-  // 修改问题
+  @ApiOperation({ title: '修改问题' })
   @Patch(':id')
   async update(
     @Param('id', new ParseIntPipe()) id: number,
@@ -53,7 +54,7 @@ export class QuestionController {
     return await this.questionService.update(id, body);
   }
 
-  // 删除问题
+  @ApiOperation({ title: '删除问题' })
   @Delete(':id')
   @HttpCode(204)
   async delete(@Param('id', new ParseIntPipe()) id: number): Promise<void> {

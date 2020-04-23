@@ -17,10 +17,10 @@ import { UploadModule } from './upload/upload.module';
     QuestionModule,
     AnswerModule,
     CommentModule,
-    UploadModule
+    UploadModule,
   ],
   controllers: [AppController],
-  providers: []
+  providers: [],
 })
 export class ApplicationModule {
   constructor(private readonly connection: Connection) {}

@@ -9,12 +9,13 @@ module.exports = {
   database: 'nestjsrealworld',
   entities: [`${SOURCE_PATH}/**/**.entity{.ts,.js}`],
   synchronize: true,
-  cache: {
-    duration: 60000,
-    type: 'redis',
-    options: {
-      host: 'localhost',
-      port: 6379
-    }
-  }
+  cache: true,
+  // cache: {
+  //   duration: 60000,
+  //   type: 'redis',
+  //   options: {
+  //     host: 'localhost',
+  //     port: 6379,
+  //   },
+  // },
 };
